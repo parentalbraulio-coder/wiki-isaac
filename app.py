@@ -1,35 +1,38 @@
 import streamlit as st
 import google.generativeai as genai
 
-# 1. Configurar la página web
-st.set_page_config(page_title="Wiki Isaac IA", page_icon="📦")
-st.title("📦 Wiki IA de Isaac")
+# 1. Configuración de la API Key desde Secrets
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+else:
+    st.error("Falta la clave GEMINI_API_KEY en los Secrets de Streamlit.")
+    st.stop()
 
-# 2. Poner tu clave de API (reemplaza lo que está entre comillas)
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-
-# 3. Cargar la información de tu archivo de texto
+# 2. Cargar el archivo de la Wiki
 try:
-    with open("wiki_isaac.txt", "r", encoding="utf-8") as archivo:
-        datos_isaac = archivo.read()
+    with open("wiki_isaac.txt", "r", encoding="utf-8") as f:
+        datos_isaac = f.read()[:15000]
 except FileNotFoundError:
-    datos_isaac = "No se encontró el archivo de datos."
+    datos_isaac = "Información general sobre The Binding of Isaac."
 
-# 4. Instrucciones para la IA
+# 3. Configuración del modelo Gemini
 instrucciones = f"""
-Eres un experto en el juego The Binding of Isaac. 
-Responde SIEMPRE en español de forma clara y directa.
-Usa esta información para responder a las dudas de los usuarios:
+Eres un experto en el juego The Binding of Isaac.
+Responde SIEMPRE en español de forma clara, directa y concisa.
+Usa esta información de referencia para responder a las dudas:
 
 {datos_isaac}
 """
 
 modelo = genai.GenerativeModel(
-    model_name="gemini-1.5-flash",
+    model_name="models/gemini-1.5-flash",
     system_instruction=instrucciones
 )
 
-# 5. Interfaz de chat
+# 4. Interfaz de chat
+st.title("📦 Wiki IA - The Binding of Isaac")
+st.write("Pregúntame sobre cualquier objeto, personaje o sinergia del juego.")
+
 if "historial" not in st.session_state:
     st.session_state.historial = []
 
@@ -37,14 +40,18 @@ for msg in st.session_state.historial:
     with st.chat_message(msg["role"]):
         st.write(msg["content"])
 
-if pregunta := st.chat_input("Pregunta algo sobre un objeto, personaje o sinergia..."):
+pregunta = st.chat_input("Escribe tu duda aquí...")
+
+if pregunta:
     st.session_state.historial.append({"role": "user", "content": pregunta})
     with st.chat_message("user"):
         st.write(pregunta)
 
     with st.chat_message("assistant"):
-        chat = modelo.start_chat()
-        respuesta = chat.send_message(pregunta)
-        st.write(respuesta.text)
-        
-    st.session_state.historial.append({"role": "assistant", "content": respuesta.text})
+        try:
+            chat = modelo.start_chat()
+            respuesta = chat.send_message(pregunta)
+            st.write(respuesta.text)
+            st.session_state.historial.append({"role": "assistant", "content": respuesta.text})
+        except Exception as e:
+            st.error(f"Error al procesar la respuesta: {e}")
