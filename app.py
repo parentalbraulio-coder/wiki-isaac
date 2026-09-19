@@ -25,7 +25,7 @@ Usa esta información para responder a las dudas de los usuarios:
 """
 
 modelo = genai.GenerativeModel(
-    model_name="gemini-1.5-flash-latest",
+    model_name="gemini-1.5-flash",
     system_instruction=instrucciones
 )
 
