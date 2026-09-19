@@ -1,0 +1,11 @@
+=== OBJETOS ===
+[Item: Sacred Heart]
+Multiplica el daño x2.3, añade disparo teledirigido, +1 corazón rojo y resta -0.2 de velocidad de lágrima.
+Sinergias: Buenísimo con C Section, Brimstone y Godhead.
+
+[Item: C Section]
+Reemplaza lágrimas por fetos que persiguen a los enemigos y hacen daño continuo.
+
+=== PERSONAJES ===
+[Personaje: Tainted Isaac]
+Solo puede llevar un máximo de 8 objetos pasivos a la vez. Los pedestales alternan entre 2 items.
